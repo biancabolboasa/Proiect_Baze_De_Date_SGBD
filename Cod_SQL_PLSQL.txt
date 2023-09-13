@@ -1,0 +1,546 @@
+--tabelul SUCURSALE
+create table sucursale
+(
+id_sucursala number(10) CONSTRAINT PK_SUCURSALE PRIMARY key not null,
+jud VARCHAR2(10),
+oras varchar2(10),
+str VARCHAR2(10),
+nr number(2),
+fax number(3),
+mail varchar2(20),
+nr_tlf number(10)
+);
+--tabelul MANAGERI DE GRUP
+create table manageri_de_grup
+(
+id_manager number(10) CONSTRAINT PK_ID_MANAGER PRIMARY key not null,
+cui number(9) CONSTRAINT CUI_UQ UNIQUE,
+CA number(7),
+denumire_firma VARCHAR2(20),
+id_sucursala number(10),
+data_infiintare date CONSTRAINT NN_DATA_INFIINT not null,
+CONSTRAINT FK_ID_SUCURSALA FOREIGN key (id_sucursala) REFERENCES 
+sucursale(id_sucursala));
+--tabelul ASISTENTI IN ASIGURARI
+create table asistenti_asigurari
+(
+id_asistent number(10) not null,
+nr_tlf number(10),
+email VARCHAR2(20),
+data_angajare date CONSTRAINT NN_DATA_ANGAJARE not null,
+comision number(2,2),
+id_manager number(10),
+id_director number(10) constraint NN_ID_DIR not null,
+constraint PK_ID_ASISTENT primary key (id_asistent),
+CONSTRAINT FK_ID_MANAGER FOREIGN key (id_manager) REFERENCES 
+manageri_de_grup(id_manager) 
+);
+ALTER TABLE asistenti_asigurari add (nume varchar2(20),prenume varchar2(20));
+alter table asistenti_asigurari drop constraint NN_ID_DIR;
+--tabelul CLIENTI 
+create table clienti_asigurari
+(
+id_client number(10) not null,
+nr_tlf number(10),
+email varchar2(20),
+data_nastere date,
+jud VARCHAR2(10),
+localit varchar2(10),
+str varchar2(10),
+nr number(3),
+cnp number(13),
+serie_buletin char(2),
+nr_buletin number(6),
+constraint PK_ID_CLIENT PRIMARY key (id_client)
+);
+alter table clienti_asigurari drop column localit;
+--tabela CHITANTE
+create table chitante
+(
+id_chitanta number(10) constraint PK_CHITANTE PRIMARY key,
+id_client number(10),
+denumire_firma_asigurator varchar2(10),
+valoare number(7),
+constraint FK_CLIENTI foreign key (id_client) references clienti(id_client));
+--tabela POLITE
+create table polite
+(
+id_asistent number(10),
+id_chitanta number(10),
+tip_polita varchar2(10),
+data_emitere date,
+sum_max number(7),
+constraint PK_POLITE primary key (id_asistent, id_chitanta),
+constraint FK_POLITE_ASISTENT FOREIGN key (id_asistent) references 
+asistenti_asigurari(id_asistent),
+constraint FK_POLITE_CHITANTA foreign KEY (id_chitanta) references chitante(id_chitanta)
+);
+--tabela MASINI
+create table masini
+(
+id_masina number(10),
+nr_masina varchar2(10),
+serie_sasiu number(10),
+nr_locuri number(2),
+id_client NUMBER(10),
+CONSTRAINT FK_MASINI foreign key (id_client) references clienti(id_client)
+);
+--tabela LOCUINTE 
+create table locuinte 
+(
+id_locuinta number(10),
+val_constr number(7),
+val_bun number(8),
+id_client number(10),
+CONSTRAINT PK_LOCUINTE foreign key (id_locuinta) references clienti(id_client)
+);
+--populare tabele
+create sequence generare_id_sucursale
+start with 1 increment by 1
+maxvalue 100 nocycle;
+select* from sucursale;
+insert into sucursale values(generare_id_sucursale.nextval, 'TIMIS', 'TIMISOARA','CAROL 
+I',6,356,'contacttm@gmail.com',null)
+select * from manageri_de_grup;
+insert into manageri_de_grup values(10, 501236789, 1023678,'S.C.HORNBTM 
+S.R.L.',6,TO_DATE('08.03.2012','DD.MM.YYYY'))
+select * from asistenti_asigurari;
+insert into asistenti_asigurari values (14, 
+0710238901,'radu68@gmail.com',to_date('12.01.2021','DD-MMYYYY'),null,1,null,'BRANZA','RADU')
+select * from clienti_asigurari;
+insert into clienti_asigurari values (110, null,null,null,null,null,null, 6238901233345 ,'OT' 
+,102367)
+insert into clienti_asigurari values (100,0723901283,'h.ovidiu@gmail.com', 
+to_date('17.02.2002','dd.mm.yyyy'),'BIHOR','O. PASTA',230,6123456789123,'BH',890234);
+insert into clienti_asigurari values 
+(101,0729301283,'g.mihai@gmail.com',to_date('29.03.2001','dd.mm.yyyy'),'OLT','N. 
+IORGA',177,1123956789123,'OT',656237);
+insert into clienti_asigurari values 
+(102,0789001883,'popescu59@gmail.com',to_date('24.12.1998','dd.mm.yyyy'),'ARGES','N. 
+FILIMON',1,2123956909123,'AG',656437);
+insert into clienti_asigurari values 
+(103,0789501883,'alinghr45@gmail.com',to_date('24.10.1988','dd.mm.yyyy'),'ARGES','M. 
+COSTIN',23,1239560929123,'AG',349023);
+insert into clienti_asigurari values 
+(104,0779501584,'b34anghel@gmail.com',to_date('01.10.2003','dd.mm.yyyy'),'CONSTANTA','
+M. NEAGRA',100,6098181727364,'CT',901287);
+insert into clienti_asigurari values 
+(105,0201238913,'anaanton@gmail.com',to_date('30.12.2001','dd.mm.yyyy'),'GIURGIU','V. 
+LEFTER',10,6127812890323,'GR',237819);
+insert into clienti_asigurari values 
+(106,0201233423,'corneliuon@gmail.com',to_date('01.01.2004','dd.mm.yyyy'),'DAMBOVITA','
+DUNARII',120,5125512489432,'DB',781234);
+insert into clienti_asigurari values 
+(107,0745901267,'aablr23@gmail.com',to_date('12.04.2001','dd.mm.yyyy'),'TELEORMAN','VE
+ZII',30,6124416489432,'TR',457823);
+insert into clienti_asigurari values 
+(108,0745961267,'ionrton3@gmail.com',to_date('23.11.2000','dd.mm.yyyy'),'VASLUI','PRIMA
+VERII',230,5124416789432,'VS',892355);
+insert into clienti_asigurari values 
+(109,0745918267,'i3harana@gmail.com',to_date('02.01.2000','dd.mm.yyyy'),'ILFOV','PITESTI',
+50,6213453890456,'IF',467289);
+insert into clienti_asigurari values (110,null,null,null,null,null,null,6238901233345,'OT',102367);
+SELECT * FROM CLIENTI_ASIGURARI;
+drop TABLE locuinte;
+--tabela LOCUINTE 
+create table locuinte 
+(
+id_locuinta number(10),
+val_constr number(7),
+val_bun number(8),
+id_client number(10),
+CONSTRAINT PK_LOCUINTE foreign key (id_client) references clienti_asigurari(id_client)
+);
+insert into locuinte values (1,1000000,234567,100);
+insert into locuinte values (2,2901235,1234,109);
+insert into locuinte values (3,561248,29015,103);
+insert into locuinte values (4,90234,12035678,101);
+insert into locuinte values (5,2000000,789123,100);
+insert into locuinte values (6,9999993,67123456,100);
+insert into locuinte values (7,4445617,1237,102);
+insert into locuinte values (8,89123,892,102);
+insert into locuinte values (9,23456,901236,107);
+insert into locuinte values (10,341278,789,109);
+select * from locuinte;
+ALTER TABLE chitante
+drop CONSTRAINT FK_CLIENTI ;
+ALTER TABLE chitante
+add CONSTRAINT FK_CLIENTI foreign key (id_client) references clienti_asigurari(id_client) ;
+insert into chitante values(1,100,'OMNIASIG',345);
+insert into chitante values(2,109,'ASIROM',893);
+insert into chitante values(3,100,'ANASIG',35);
+insert into chitante values(4,105,'OMNIASIG',145);
+insert into chitante values(5,101,'OMNIASIG',1000);
+insert into chitante values(6,108,'GRAWE',567);
+insert into chitante values(7,107,'ASIROM',610);
+insert into chitante values(8,102,'OMNIASIG',35);
+insert into chitante values(9,102,'ASIROM',500);
+insert into chitante values(10,102,'OMNIASIG',3000);
+insert into chitante values(11,104,'GRAWE',390);
+insert into chitante values(12,110,'OMNIASIG',305);
+insert into chitante values(13,108,'GRAWE',199);
+insert into chitante values(14,103,'GRAWE',891);
+insert into chitante values(15,106,'ANASIG',450);
+select * from chitante;
+ALTER TABLE masini
+drop CONSTRAINT FK_MASINI ;
+ALTER TABLE masini
+add CONSTRAINT FK_MASINI foreign key (id_client) references clienti_asigurari(id_client) ;
+insert into masini values (1,'OT25RBR',2314567890,2,100);
+insert into masini values (2,'B100ION',3218901283,6,102);
+insert into masini values (3,'IF89BOR',4501238940,4,null);
+insert into masini values (4,'AG74HLR',6810093005,5,100);
+insert into masini values (5,'OT10RBR',9100222398,5,100);
+insert into masini values (6,'DB99LOL',7129023874,5,109);
+insert into masini values (7,'CL70WER',9128649012,5,110);
+insert into masini values (8,'BV45MQL',1032890122,5,105);
+insert into masini values (9,'CJ66FLO',4444012389,9,107);
+insert into masini values (10,'TR32YOY',6136012789,5,108);
+SELECT * FROM MASINI;
+--polite
+insert into polite values(14,1,'RCA',to_date('12.12.2020','dd.mm.yyyy'),128345);
+insert into polite values(10,3,'CMR',to_date('14.02.2020','dd.mm.yyyy'),230124);
+insert into polite values(1,15,'VIATA',to_date('02.11.2021','dd.mm.yyyy'),1034);
+insert into polite values(4,10,'RCA',to_date('19.04.2021','dd.mm.yyyy'),891234);
+insert into polite values(7,8,'LOCUINTA',to_date('20.05.2022','dd.mm.yyyy'),903456);
+insert into polite values(5,2,'SANATATE',to_date('05.07.2019','dd.mm.yyyy'),45238);
+insert into polite values(12,12,'RCA',to_date('11.03.2021','dd.mm.yyyy'),992356);
+insert into polite values(2,4,'CALATORIE',to_date('12.08.2022','dd.mm.yyyy'),5123456);
+insert into polite values(3,2,'CASCO',to_date('20.01.2020','dd.mm.yyyy'),9120234);
+insert into polite values(6,7,'MALPRAXIS',to_date('02.09.2021','dd.mm.yyyy'),1283455);
+select * from polite;
+
+--Afișarea emailului sucurselelor în funcție de județe (Bucureștiul este un caz particular):
+declare
+ v_jud sucursale.jud%TYPE;
+ v_oras sucursale.oras%TYPE;
+ v_mail sucursale.mail%TYPE;
+begin
+ select jud, oras, mail into v_jud, v_oras, v_mail from sucursale where id_sucursala=&idsuc;
+ if v_jud like 'BUCURESTI' then dbms_output.put_line('Sucursala '||v_jud||' are emailul 
+'||v_mail);
+ elsif v_jud in('BUZAU','OLT','CONSTANTA','MURES','DOLJ','VALCEA','ARGES','TIMIS') 
+then dbms_output.put_line('Sucursala din judetul '||v_jud||', orasul '||v_oras||' are emailul 
+'||v_mail);
+ else dbms_output.put_line('Nu exista sucursala cautata');
+ end if;
+exception
+ when no_data_found then dbms_output.put_line('Nu exista sucursala cautata');
+end;
+/
+
+--Lista firmelor care trebuie să schimbe strategia de management (comparație cu media):
+declare
+ v_den manageri_de_grup.denumire_firma%type;
+ v_ca manageri_de_grup.ca%type;
+ ca_med number;
+ v_min number;
+ v_max number;
+begin
+ select min(id_manager), max(id_manager) into v_min, v_max FROM manageri_de_grup;
+ select avg(ca) into ca_med from manageri_de_grup;
+ for i in v_min..v_max loop
+ select denumire_firma, ca into v_den, v_ca FROM manageri_de_grup where id_manager=i;
+ if v_ca>ca_med then dbms_output.put_line(v_den||' organizatie profitabila');
+ else dbms_output.put_line(v_den||' trebuie sa faca schimbari ');
+ end if;
+ end loop;
+end;
+/
+
+
+--Lista comisioanelor angajaților, indiferent de sucursală sau manager de grup:
+declare
+ v_max number;
+ vn asistenti_asigurari.nume%TYPE;
+ vp asistenti_asigurari.prenume%TYPE;
+ vc asistenti_asigurari.comision%TYPE;
+ i number(10):=1;
+begin
+ select max(id_asistent) into v_max from asistenti_asigurari;
+ while i<=v_max loop
+ select nume, prenume, nvl(comision, 0) into vn, vp, vc from asistenti_asigurari where 
+id_asistent=i;
+ dbms_output.put_line('Angajatul '||vn||' '||vp||' are comisionul '||vc);
+i:=i+1;
+ end loop;
+end;
+/
+
+
+--In contextul creșterii impozitului pentru IMM-uri, determin presiunea fiscală pusă pe 
+managerii de grup:
+declare
+ vd manageri_de_grup.denumire_firma%TYPE;
+ vc number;
+ va manageri_de_grup.ca%TYPE;
+ im manageri_de_grup.id_manager%TYPE:=&im;
+begin
+ select denumire_firma, ca, count(id_asistent) into vd,va,vc from asistenti_asigurari aa, 
+manageri_de_grup mg where aa.id_manager=mg.id_manager and mg.id_manager=im GROUP 
+by denumire_firma, ca;
+ dbms_output.put_line(vd||' '||va);
+ va:=case when vc between 2 and 4 then 0.01*va
+ else va*0.05 end;
+ 
+ dbms_output.put_line(vd||': Suma din CA pierduta prin cresterea impozitului/salariu->'||va);
+end;
+
+
+
+--Folosind drept indicator cifra de afaceri, am determinat un clasament al managerilor de 
+grup folosit drept suport în deciziile managementului superior:
+set serveroutput on
+declare
+ cursor c is select * from manageri_de_grup order by ca desc;
+ r c%rowtype;
+begin
+ open c;
+ dbms_output.put_line('Clasamentul companiilor este: ');
+ loop
+ fetch c into r;
+ exit when c%notfound;
+ dbms_output.put_line(r.denumire_firma||' | '||r.ca);
+ end loop;
+ close c;
+end;
+/
+
+
+
+--În urma schimbării faxului pentru managerii de grup din Constanța, am făcut publică 
+schimbarea:
+declare
+ cursor c is select * from sucursale where upper(jud) like '%CONSTANTA%';
+begin
+ update sucursale
+ set fax=111
+ where upper(jud) like '%CONSTANTA%';
+ for r in c loop
+ dbms_output.put_line(r.jud||' '||r.fax||' '||r.nr_tlf);
+ end loop;
+end;/
+
+
+
+--Determinarea angajatilor ce trebuie concediat (în ipoteza că dacă nu au comision, nu au 
+încheiat nicio poliță de asigurare):
+declare
+ v_comision asistenti_asigurari.comision%TYPE;
+ v_nume asistenti_asigurari.nume%TYPE;
+ v_prenume asistenti_asigurari.prenume%TYPE;
+ v_id asistenti_asigurari.id_asistent%TYPE:=&id;
+ de_concediat exception;
+begin
+ select id_asistent,nume, prenume, comision into v_id, v_nume, v_prenume,v_comision from 
+asistenti_asigurari where id_asistent=v_id;
+ if v_comision is not null then dbms_output.put_line('Angajat: '||v_nume||' '||v_prenume||' 
+comision:'||v_comision);
+ else raise de_concediat;
+ end if;
+exception
+ when no_data_found then dbms_output.put_line('Angajatul nu exista'); 
+ when de_concediat then dbms_output.put_line('Angajat: '||v_nume||' '||v_prenume||' va fi 
+CONCEDIAT');
+ when others then dbms_output.put_line('eroare'|| sqlerrm);
+end;
+/
+
+
+--Acordarea unui premiu angajatului cu vechime in companie:
+declare
+ v_nume asistenti_asigurari.nume%TYPE;
+ v_prenume asistenti_asigurari.prenume%TYPE;
+ v_id asistenti_asigurari.id_asistent%TYPE:=&id;
+ v_comision asistenti_asigurari.comision%TYPE;
+ v_vechime NUMBER;
+ premiu exception;
+begin
+ select nume, prenume, round((sysdate-data_angajare)/365,2) into v_nume, v_prenume, 
+v_vechime from asistenti_asigurari where id_asistent=v_id;
+ if v_vechime>3 then raise premiu;
+ else dbms_output.put_line(v_nume||' '||v_prenume||' nu are vechime destula in domeniu');
+ end if;
+exception 
+ when no_data_found then dbms_output.put_line('Angajatul cautat nu exista');
+ when premiu then update asistenti_asigurari set comision=comision+0.02 where 
+id_asistent=v_id;
+ select comision into v_comision from asistenti_asigurari where id_asistent=v_id;
+ dbms_output.put_line(v_nume||' '||v_prenume||' are acum comisionul '||v_comision); 
+ 
+ when others then dbms_output.put_line('eroare'|| sqlerrm);
+end;
+/
+
+
+--Clasificarea mașinilor pentru a stabili tipul de asigurare potrivit (împărțirea se face 
+folosind numărul de locuri):
+create or replace procedure locmasina 
+as
+ cursor c is select nr_locuri from masini;
+begin
+ for r in c loop
+ if r.nr_locuri>=9 then dbms_output.put_line('Autobuz');
+ elsif r.nr_locuri BETWEEN 6 and 8 then dbms_output.put_line('MAsina de familie');
+ else dbms_output.put_line('Masina personala');
+ end if;
+ end loop;
+end;
+/
+execute locmasina
+
+
+--Catalogarea unei asigurări drept expirată dacă a trecut mai mult de un an de la emiterea 
+acesteia:
+create or replace procedure asigexp (p_as number, p_ch number)
+as
+ expirare number;
+begin
+ select round((sysdate-data_emitere)/365,0) into expirare from polite where id_asistent=p_as 
+and id_chitanta=p_ch;
+ if expirare>1 then dbms_output.put_line('Polita a expirat');
+ else dbms_output.put_line('Polita este valabila');
+ end if;
+exception
+ when no_data_found then dbms_output.put_line('Asistenul '||p_as|| ' nu a emis polita '||p_ch);
+end;
+/
+execute asigexp (2,4)
+execute asigexp (2,6)
+execute asigexp(14,1)
+
+
+--Salariul primit de un asistent ce a emis asigurari (cuantumul primit din totalul primelor 
+de asigurări, evaluat monetar):
+create or replace procedure sal (p_id number)
+as
+ ct number:=0;
+ cursor c is select nvl(nvl(comision,0)*valoare,0) sal from asistenti_asigurari a, polite p, 
+chitante c where a.id_asistent=p.id_asistent and p.id_chitanta=c.id_chitanta and 
+p.id_asistent=p_id;
+ ids number;
+begin
+ for r in c loop
+ ct:=ct+r.sal;
+ end loop;
+ if ct!=0 then
+ dbms_output.put_line(ct);
+ else dbms_output.put_line('intoduceti alt asistent!');
+ end if;
+end;
+/
+execute sal(12);
+execute sal(8);
+
+
+--Managementul resurselor umane (este necesară determinarea periodică a numărului de 
+angajați pentru a oferi aceste date departamentului de contabilitate/auditorului 
+independent managerului de grup):
+create or replace function nrang (f_id manageri_de_grup.id_manager%TYPE)
+return number
+as
+ f_den manageri_de_grup.denumire_firma%TYPE;
+ f_nr number;
+ img manageri_de_grup.id_manager%TYPE;
+begin
+ select count(id_asistent) into f_nr from asistenti_asigurari a, manageri_de_grup mg 
+ where a.id_manager=mg.id_manager and mg.id_manager=f_id;
+ select id_manager into img from manageri_de_grup where id_manager=f_id;
+ if f_nr=0 then return -100;
+ else return f_nr;
+ end if;
+exception 
+ when no_data_found then return -1;
+end;
+/
+declare 
+ n1 number;
+ den manageri_de_grup.denumire_firma%type;
+begin
+select denumire_firma into den from manageri_de_grup where id_manager=10;
+ n1:=nrang(10);
+ if n1=-1 then dbms_output.put_line('Nu exsita managerul de grup introdus!');
+ elsif n1=-100 then dbms_output.put_line('Managerul de grup '||den||' nu are angajati');
+ else dbms_output.put_line('Managerul de grup '||den||' are '||n1||' anagajati');
+ end if;
+end;
+/
+
+
+--În cazul locuințelor, polița de asigurare prevede asigurarea atât a activului imobilizat 
+(clădirea, construcția), cât și a bunurilor din acea locație. Pentru a avea o gestiune 
+corectă a valorii cu care va fi despăgubit asiguratul în cazul daunei totale, am calculat 
+valoarea totală a primei brute de asigurare pentru locuințe:
+create or replace function valbunlocuinta (f_id number)
+return number
+as
+ cursor c is select sum(nvl(val_constr,0)+nvl(val_bun,0)) vt from locuinte l, clienti_asigurari cl 
+where cl.id_client=l.id_client and cl.id_client=f_id ;
+ r c%rowtype;
+ ic number;
+begin
+ select id_client into ic from clienti where id_client=f_id;
+ open c;
+ loop
+ fetch c into r;
+ if r.vt!=0 then return r.vt;
+ else return -4;
+ end if;
+ exit when c%notfound;
+ end loop;
+ close c;
+exception
+ when no_data_found then return -1;
+end;
+/
+execute dbms_output.put_line(valbunlocuinta(104));
+
+--Un client poate avea mai multe polițe de asigurare, încheiate la același manager de grup 
+sau la oricare altul. Suma totală plătită de un client pentru asigurări:
+create or replace function valasig (f_id number)
+return number
+as
+ contor number:=0;
+ cursor c is select chitante.denumire_firma_asigurator, nvl(valoare,0) val from chitante where 
+id_client=f_id;
+ ic number;
+begin
+ 
+ for r in c loop
+ contor:=contor+r.val;
+ end loop;
+ 
+ if contor=0 then return -100;
+ else return contor;
+ end if;
+end;
+/
+execute dbms_output.put_line(valasig(1020));
+execute dbms_output.put_line(valasig(102));
+execute dbms_output.put_line(valasig(110));
+
+
+--Analog exemplului anterior, o societate de asigurări vinde polițe (prin intermediul 
+managerilor de grup) mai multor clienți, deci primește contravaloarea asigurărilor din 
+mai multe surse- înregistrate în contabilitate. Suma totală primită de o firmă asigurator:
+create or replace function valasig (nume chitante.denumire_firma_asigurator%type)
+return number
+as
+ contor number:=0;
+ cursor c is select chitante.denumire_firma_asigurator, nvl(valoare,0) val from chitante where 
+upper(denumire_firma_asigurator) like upper(nume);
+ ic number;
+begin
+ 
+ for r in c loop
+ contor:=contor+r.val;
+ end loop;
+ 
+ if contor=0 then return -100;
+ else return contor;
+ end if;
+end;
+/
+execute dbms_output.put_line(valasig('Asirom'));
+execute dbms_output.put_line(valasig('Anasig'));
+execute dbms_output.put_line(valasig('rosig'));
